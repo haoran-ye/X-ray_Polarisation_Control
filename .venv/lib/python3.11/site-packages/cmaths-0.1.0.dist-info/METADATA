@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: cmaths
+Version: 0.1.0
+Summary: A python package to deal with maths
+Home-page: https://github.com/IronManCool001/cmaths
+Author: Debaditya Malakar
+Author-email: technicalfriend.help@gmail.com
+License: MIT
+Platform: UNKNOWN
+Requires-Dist: wheel
+
+UNKNOWN
+
