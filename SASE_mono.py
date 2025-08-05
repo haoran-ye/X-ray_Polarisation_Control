@@ -1,25 +1,123 @@
 import numpy as np
 import scipy.constants as sp_const
-from scipy.interpolate import RegularGridInterpolator
 import scipy.special as sp_func
 import scipy.signal as sp_sign
+from Constants import *
+from Maths_funcs import *
 
-def Roh(X):
+def Roh(t, E0):
+    """
+    Monochromator impulse response as a function of time.
+
+    Parameters
+    ----------
+    t : 1D array of time values [s]
+    E0      : photon energy times hbar [J]
+
+    Returns
+    -------
+    kernel  : 1D complex array of same length as t
+    """
     chi_h = -0.79955e-05 + 1j*0.24361e-06
     chi_mh = chi_h
     chi_0 = -0.15127e-04 + 1j*0.34955e-06
-    theta_B = (np.pi/180) * 14.221
+    theta_B_deg = 14.221
+    theta_B = np.deg2rad(theta_B_deg)
+
+    # characteristic time
+    Tg = (2 * np.sin(theta_B)**2) / ((E0/hbar) * np.sqrt(chi_h*chi_mh))
+
+    # center time
+    t = t - (t.max() + t.min())/2.0
     
-    t = X.t - (X.tmax/2)
-    
-    Tg = (2 * np.sin(theta_B)**2) / ( (X.hwKalpha1N/X.hbar) * np.sqrt(chi_h*chi_mh))
-    exparg = - ( (X.hwKalpha1N/X.hbar) * np.imag(chi_0) * t) / (2 * np.sin(theta_B)**2)
-    
-    # plt.plot(np.real((sp_func.jv(1, t/Tg) / (1j*t)) * np.exp(exparg)))
-    # plt.plot(np.imag((sp_func.jv(1, t/Tg) / (1j*t)) * np.exp(exparg)))
-    # plt.show()
-    
+    # exponential damping
+    exparg = -((E0/hbar) * np.imag(chi_0) * t) / (2 * np.sin(theta_B)**2)
+
     return np.heaviside(t, 1) * (sp_func.jv(1, t/Tg) / (1j*t)) * np.exp(exparg)
+
+def generate_sase_time_field(t, bandwidth, lambda0):
+
+
+def monochromate_pulse(xgrid, ygrid, tgrid,
+                        xmax, ymax, tmax,
+                        sigma_rx, sigma_ry, sigma_t,
+                        seed_delay, E_seed_uJ,
+                        lambda0, hw, Gamma_sp,
+                        bandwidth):
+    """
+    Build a Gaussian x/y beam, generate a SASE-like time field, convolve twice
+    with the monochromator response, and return the monochromated 3D field.
+
+    Parameters
+    ----------
+    xgrid, ygrid, tgrid : int
+        Number of points in x, y, and time.
+    xmax, ymax : float
+        Full transverse extent [m].
+    tmax : float
+        Full temporal window [s].
+    sigma_rx, sigma_ry : float
+        Beam rms sizes in x and y [m].
+    sigma_t : float
+        (unused) placeholder, time rms [s].
+    seed_delay : float
+        Delay to apply before monochromator [s].
+    E_seed_uJ : float
+        Seed pulse energy [µJ].
+    lambda0 : float
+        Central wavelength [m].
+    hw : float
+        Photon energy times hbar [J].
+    Gamma_sp : float
+        Spontaneous emission rate [1/s] (placeholder, not used).
+    bandwidth : float
+        Relative bandwidth (FWHM) of SASE spectrum.
+
+    Returns
+    -------
+    field_txy : complex ndarray
+        Monochromated field of shape (tgrid, xgrid, ygrid).
+    x : 1D array, shape (xgrid,)
+    y : 1D array, shape (ygrid,)
+    t : 1D array, shape (tgrid,)
+    """
+    # create grids
+    x = np.linspace(-xmax/2, xmax/2, xgrid)
+    y = np.linspace(-ymax/2, ymax/2, ygrid)
+    t = np.linspace(-tmax/2, tmax/2, tgrid)
+    dx = x[1] - x[0]
+    dy = y[1] - y[0]
+    dt = t[1] - t[0]
+
+    # spatial Gaussian profile
+    X, Y = np.meshgrid(x, y, indexing='ij')
+    field_xy = np.exp(-0.5 * (X**2/sigma_rx**2 + Y**2/sigma_ry**2))
+    field_xy /= np.sqrt(np.sum(np.abs(field_xy)**2) * dx * dy)
+
+    # temporal SASE-like field
+    field_t = generate_sase_time_field(t, bandwidth, lambda0)
+    field_t /= np.sqrt(np.sum(np.abs(field_t)**2) * dt)
+
+    # apply timing delay
+    shift = int(np.round(seed_delay / dt))
+    field_t0 = roll_zeropad(field_t, shift)
+
+    # monochromator response
+    kernel = Roh(t, hw)
+
+    # double convolution (times dt to preserve amplitude)
+    field_t1 = convolve(field_t0, kernel, mode='same') * dt
+    field_t2 = convolve(field_t1, kernel, mode='same') * dt
+
+    # combine time and space
+    field_txy = field_t2[:, None, None] * field_xy[None, :, :]
+
+    # normalize overall
+    norm = np.sqrt(np.sum(np.abs(field_txy)**2) * dx * dy * dt)
+    field_txy /= norm
+
+    return field_txy, x, y, t
+
 
 def Ocelot_SASE_seed_220_dbm_pstxy(X):
     SASE = RadiationField()  # initialize RadiationField object

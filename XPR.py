@@ -1,5 +1,6 @@
 import numpy as np
 from Constants import *
+from Maths_funcs import *
 
 ### Calculating transmitted and diffracted amplitudes in Loue geometry from incident plane wave ###
 
@@ -48,9 +49,6 @@ def calculate_pi(E, t, theta):
   return alpha, u1, u2, v1, v2, delta1, delta2, Dpi, Tpi
 
 ### Calculating T and D in both polarisations with averaging over photon energy ###
-
-def Gaussian(E, E0, deltaE):
-  return np.exp(-(E-E0)**2 / (2 * (deltaE/2.355)**2))
 
 def bandwidth_avg_Tsigma(E0, deltaE, step, t, theta):
   E = np.arange(E0 - 3*deltaE, E0 + 3*deltaE, step)

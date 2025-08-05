@@ -2,6 +2,7 @@ import numpy as np
 
 ### Fundamental constants
 
+h = 6.62607015e-34 
 hbar = 1.0545718e-34
 c = 2.99792458e8
 e = 1.60217663e-19
