@@ -25,6 +25,7 @@ def calculate_sigma(E, t, theta):
 
   Tsigma = (v1*np.exp(1j*u2*(w/c)*t) - v2*np.exp(1j*u1*(w/c)*t)) / (v1 - v2)
   Dsigma = (v1*v2*np.exp(1j*u2*(w/c)*t) - v2*v1*np.exp(1j*u1*(w/c)*t)) / (v1 - v2)
+  #print(thetaB)
 
   return alpha, u1, u2, v1, v2, delta1, delta2, Dsigma, Tsigma
 
@@ -87,3 +88,43 @@ def bandwidth_avg_Dpi(E0, deltaE, step, t, theta):
   additional_phase = np.exp(1j*E/hbar/c*np.cos(theta)*t) ### E0 works, E does not work
   D_pi_weighted = D_pi * weight / weight_sum #* additional_phase
   return np.sum(D_pi_weighted)
+
+"""
+
+def bandwidth_avg_Tsigma(E0, deltaE, step, t, theta):
+  E = np.arange(E0 - 3*deltaE, E0 + 3*deltaE, step)
+  weight = Gaussian(E, E0, deltaE)
+  weight_sum = np.sum(weight)
+  T_sigma = np.abs(calculate_sigma(E, t, theta)[-1])
+  additional_phase = np.exp(1j*E/hbar/c*np.cos(theta)*t)
+  T_sigma_weighted = T_sigma * weight / weight_sum #* additional_phase
+  return np.sum(T_sigma_weighted)
+
+def bandwidth_avg_Tpi(E0, deltaE, step, t, theta):
+  E = np.arange(E0 - 3*deltaE, E0 + 3*deltaE, step)
+  weight = Gaussian(E, E0, deltaE)
+  weight_sum = np.sum(weight)
+  T_pi = np.abs(calculate_pi(E, t, theta)[-1])
+  additional_phase = np.exp(1j*E/hbar/c*np.cos(theta)*t) ### E0 works, E does not work
+  T_pi_weighted = T_pi * weight / weight_sum #* additional_phase
+  return np.sum(T_pi_weighted)
+
+def bandwidth_avg_Dsigma(E0, deltaE, step, t, theta):
+  E = np.arange(E0 - 3*deltaE, E0 + 3*deltaE, step)
+  weight = Gaussian(E, E0, deltaE)
+  weight_sum = np.sum(weight)
+  D_sigma = np.abs(calculate_sigma(E, t, theta)[-2])
+  additional_phase = np.exp(1j*E/hbar/c*np.cos(theta)*t)
+  D_sigma_weighted = D_sigma * weight / weight_sum #* additional_phase
+  return np.sum(D_sigma_weighted)
+
+def bandwidth_avg_Dpi(E0, deltaE, step, t, theta):
+  E = np.arange(E0 - 3*deltaE, E0 + 3*deltaE, step)
+  weight = Gaussian(E, E0, deltaE)
+  weight_sum = np.sum(weight)
+  D_pi = np.abs(calculate_pi(E, t, theta)[-2])
+  additional_phase = np.exp(1j*E/hbar/c*np.cos(theta)*t) ### E0 works, E does not work
+  D_pi_weighted = D_pi * weight / weight_sum #* additional_phase
+  return np.sum(D_pi_weighted)
+
+"""
