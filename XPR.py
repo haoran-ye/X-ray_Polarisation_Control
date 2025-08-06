@@ -1,8 +1,10 @@
 import numpy as np
 from Constants import *
-from Maths_funcs import *
 
 ### Calculating transmitted and diffracted amplitudes in Loue geometry from incident plane wave ###
+
+def Gaussian(E, E0, deltaE):
+  return np.exp(-(E-E0)**2 / (2 * (deltaE/2.355)**2)) 
 
 def calculate_sigma(E, t, theta):
   w = E / hbar

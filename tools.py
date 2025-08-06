@@ -345,10 +345,10 @@ def Roh(X):
     chi_0 = -0.15127e-04 + 1j*0.34955e-06
     theta_B = (np.pi/180) * 14.221
     
-    t = X.t - (X.tmax/2)
+    t = (X.t - (X.tmax/2)) * 1e-15
     
     Tg = (2 * np.sin(theta_B)**2) / ( (X.hwKalpha1N/X.hbar) * np.sqrt(chi_h*chi_mh))
-    exparg = - ( (X.hwKalpha1N/X.hbar) * np.imag(chi_0) * t) / (2 * np.sin(theta_B)**2)
+    exparg = - ((X.hwKalpha1N/X.hbar) * np.imag(chi_0) * t) / (2 * np.sin(theta_B)**2)
     
     # plt.plot(np.real((sp_func.jv(1, t/Tg) / (1j*t)) * np.exp(exparg)))
     # plt.plot(np.imag((sp_func.jv(1, t/Tg) / (1j*t)) * np.exp(exparg)))
