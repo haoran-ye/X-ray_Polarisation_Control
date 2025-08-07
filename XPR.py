@@ -53,6 +53,30 @@ def calculate_pi(E, t, theta):
 
 ### Calculating T and D in both polarisations with averaging over photon energy ###
 
+def Gaussian_avg_Ixy(E0, deltaE, step, t, theta):
+  E = np.arange(E0 - 3*deltaE, E0 + 3*deltaE, step)
+  weight = Gaussian(E, E0, deltaE)
+  weight_sum = np.sum(weight)
+  T_sigma = calculate_sigma(E, t, theta)[-1]
+  T_pi = calculate_pi(E, t, theta)[-1]
+  additional_phase = np.exp(1j*E/hbar/c*np.cos(theta)*t)
+  I_x_weighted = np.abs(T_sigma + T_pi)**2 / 2 * weight / weight_sum #* additional_phase
+  I_y_weighted = np.abs(T_sigma - T_pi)**2 / 2 * weight / weight_sum #* additional_phase
+  return np.sum(I_x_weighted), np.sum(I_y_weighted)
+
+"""
+def bandwidth_avg_coh_Ixy(E0, deltaE, step, t, theta):
+  E = np.arange(E0 - 3*deltaE, E0 + 3*deltaE, step)
+  weight = Gaussian(E, E0, deltaE)
+  weight_sum = np.sum(weight)
+  T_sigma = calculate_sigma(E, t, theta)[-1]
+  T_pi = calculate_pi(E, t, theta)[-1]
+  additional_phase = np.exp(1j*E/hbar/c*np.cos(theta)*t)
+  T_x_weighted = (T_sigma + T_pi) / 2 * weight / weight_sum * additional_phase
+  T_y_weighted = (T_sigma - T_pi) / 2 * weight / weight_sum * additional_phase
+  return np.sum(T_x_weighted), np.sum(T_y_weighted)
+"""
+
 def bandwidth_avg_Tsigma(E0, deltaE, step, t, theta):
   E = np.arange(E0 - 3*deltaE, E0 + 3*deltaE, step)
   weight = Gaussian(E, E0, deltaE)
