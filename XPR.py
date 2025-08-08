@@ -55,7 +55,7 @@ def calculate_pi(E, t, theta):
 
 def Gaussian_avg_Ixy(E0, deltaE, step, t, theta):
   E = np.arange(E0 - 3*deltaE, E0 + 3*deltaE, step)
-  weight = Gaussian(E, E0, deltaE)
+  weight = Gaussian(E, E0, deltaE) # Gaussian distribution for intensity
   weight_sum = np.sum(weight)
   T_sigma = calculate_sigma(E, t, theta)[-1]
   T_pi = calculate_pi(E, t, theta)[-1]
